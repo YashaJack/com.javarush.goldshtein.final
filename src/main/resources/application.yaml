@@ -10,16 +10,17 @@ app:
 spring:
   init:
     mode: never
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+
   jpa:
     show-sql: true
     open-in-view: false
-
-    # validate db by model
     hibernate:
-      ddl-auto: validate
-
+      ddl-auto: validate   # валидируем схему, но не генерим
     properties:
-      # http://docs.jboss.org/hibernate/orm/5.3/userguide/html_single/Hibernate_User_Guide.html#configurations
       hibernate:
         format_sql: true
         default_batch_fetch_size: 20
@@ -28,12 +29,11 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/jira}
     username: ${SPRING_DATASOURCE_USERNAME:jira}
-    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    password: ${SPRING_DATASOURCE_PASSWORD:JiraRush}
 
   liquibase:
-    changeLog: "classpath:db/changelog.sql"
+    change-log: classpath:db/changelog.sql
 
-  # Jackson Fields Serialization
   jackson:
     visibility:
       field: any
@@ -41,10 +41,10 @@ spring:
       setter: none
       is-getter: none
 
-  # https://docs.spring.io/spring-boot/docs/current/reference/html/appendix-application-properties.html#common-application-properties-cache
   cache:
     cache-names: users
-    caffeine.spec: maximumSize=10000,expireAfterAccess=5m
+    caffeine:
+      spec: maximumSize=10000,expireAfterAccess=5m
 
   security:
     oauth2:
@@ -53,7 +53,8 @@ spring:
           github:
             client-id: ${OAUTH_GITHUB_CLIENT_ID}
             client-secret: ${OAUTH_GITHUB_CLIENT_SECRET}
-            scope: email
+            scope:
+              - user:email
           google:
             client-id: ${OAUTH_GOOGLE_CLIENT_ID}
             client-secret: ${OAUTH_GOOGLE_CLIENT_SECRET}
@@ -66,7 +67,8 @@ spring:
             client-name: GitLab
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             authorization-grant-type: authorization_code
-            scope: read_user
+            scope:
+              - read_user
         provider:
           gitlab:
             authorization-uri: https://gitlab.com/oauth/authorize
@@ -76,7 +78,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never   # отключаем, т.к. используем Liquibase
 
   mail:
     host: smtp.gmail.com
@@ -90,8 +92,12 @@ spring:
             enable: true
           auth: true
 
-  thymeleaf.check-template-location: false
-  web.resources.add-mappings: false
+  thymeleaf:
+    check-template-location: false
+
+  web:
+    resources:
+      add-mappings: false
 
 logging:
   level:
@@ -101,7 +107,6 @@ logging:
     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: DEBUG
 
 server:
-  # https://springdoc.org/index.html#how-can-i-deploy-springdoc-openapi-ui-behind-a-reverse-proxy
   forward-headers-strategy: framework
   servlet:
     encoding:
@@ -109,4 +114,6 @@ server:
       enabled: true
       force: true
 
-springdoc.swagger-ui.path: /doc
+springdoc:
+  swagger-ui:
+    path: /doc
