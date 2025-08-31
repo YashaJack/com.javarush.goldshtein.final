@@ -71,7 +71,3 @@
 - созданы файлы переводов:
     - `src/main/resources/messages.properties` (русский — по умолчанию)
     - `src/main/resources/messages_en.properties` (английский)
-- в шаблонах Thymeleaf текст заменён на ключи, например:
-    - `Logout` → `#{logout}`
-    - `Login` → `#{login}`
-- теперь интерфейс приложения поддерживает переключение локалей.es_en.properties` (английский)
