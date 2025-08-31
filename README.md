@@ -39,11 +39,27 @@
     - Почта: `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`
     - В `application.yml` все чувствительные поля читаются через `${ENV_VAR}`
     - Добавлен шаблон `.env.example`, `.env` добавлен в `.gitignore`
-5. - Создан тестовый класс ProfileRestControllerTest.
-      -	Используется MockMvc с standaloneSetup(...).
+   
+5. Создан тестовый класс ProfileRestControllerTest
+      -	Используется MockMvc с standaloneSetup(...)
       -	Зависимости ProfileRepository и ProfileMapper подменены на фейковые реализации.
       -	Добавлен HandlerMethodArgumentResolver, чтобы в тестах корректно подставлялся @AuthenticationPrincipal AuthUser.
    
     - Реализованы два теста:
-      -	get_returnsProfileForAuthenticatedUser — проверяет возврат профиля по текущему пользователю.
-      -	update_updatesProfileForAuthenticatedUser — проверяет успешное обновление профиля.# Final
+      -	get_returnsProfileForAuthenticatedUser — проверяет возврат профиля по текущему пользователю
+      -	update_updatesProfileForAuthenticatedUser — проверяет успешное обновление профиля
+      
+6. Рефакторинг FileUtil#upload:
+    - перевёл на Java NIO (Path, Files)
+    - Добавил авто-создаваемую директорию, нормализацию путей, защиту от path traversal и запись через Files.copy(..., REPLACE_EXISTING)
+    - Методы download и delete также переписаны на NIO
+
+9. Dockerfile для основного сервера:
+   - Добавлен двухэтапный `Dockerfile`:
+     - Stage 1 (maven+JDK17) собирает проект с кэшированием зависимостей 
+     - Stage 2 (JDK17) содержит только собранный `app.jar`
+     
+   - Запуск:
+     - ```bash
+       docker build -t jira-app .
+       docker run --rm -p 8080:8080 jira-app
